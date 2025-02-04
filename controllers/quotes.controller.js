@@ -14,6 +14,7 @@ const uploadFile = async (req, res) => {
     res.status(200).json({
       message: "File uploaded successfully",
       fileUrl: fileUrl,
+      fileName: fileName,
     });
   } catch (error) {
     console.error("Upload error:", error);
@@ -58,7 +59,7 @@ const getQuotes = async (req, res) => {
     const totalCount = await QuotesData.countDocuments(query);
 
     const filterQuotes = await QuotesData.find(query)
-      .sort({ date: -1 }) // Sort by latest date
+      .sort({ createdAt: -1 }) // Sort by latest date
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
@@ -77,14 +78,15 @@ const getQuotes = async (req, res) => {
   }
 };
 
-const deleteQuoteImage = async (req, res) => {
+const deleteQuoteById = async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
+    console.log("id---------", id, "body---------", data);
     await QuotesData.deleteOne({ _id: id });
-    const deletedFile = await deleteFromS3(data.key);
+    const deletedFile = await deleteFromS3(data.s3ImageName);
     if (deletedFile) {
-      res.status(200).json({ message: "Quote image deleted successfully" });
+      res.status(200).json({ message: "Quote deleted successfully" });
     } else {
       res.status(500).json({
         message: "Error deleting quote image",
@@ -119,6 +121,6 @@ module.exports = {
   uploadFile,
   uploadQuote,
   getQuotes,
-  deleteQuoteImage,
+  deleteQuoteById,
   deleteFromS3Controller,
 };

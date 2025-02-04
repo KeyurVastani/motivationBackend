@@ -5,7 +5,6 @@ const uploadController = require("../controllers/quotes.controller");
 router.post("/imageUpload", upload.single("file"), uploadController.uploadFile);
 router.post("/add-quotes", uploadController.uploadQuote);
 router.get("/get-quotes", uploadController.getQuotes);
-router.delete("/quote-image/:id", uploadController.deleteQuoteImage);
-router.delete("/delete-from-s3", uploadController.deleteFromS3Controller);
+router.delete("/quote/:id", uploadController.deleteQuoteById);
 
 module.exports = router;

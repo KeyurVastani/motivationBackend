@@ -6,6 +6,7 @@ const quoteImageSchema = new mongoose.Schema({
   subType: { type: String },
   text: { type: String },
   language: { type: String, enum: ["english", "hindi", "gujarati"] },
+  s3ImageName: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
