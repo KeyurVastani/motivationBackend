@@ -101,26 +101,9 @@ const deleteQuoteById = async (req, res) => {
   }
 };
 
-const deleteFromS3Controller = async (req, res) => {
-  try {
-    const key = req.body.key;
-    const deletedFile = await deleteFromS3(key);
-    if (deletedFile) {
-      await QuotesData.deleteOne({ key: key });
-    }
-    res.status(200).json({ message: "File deleted from S3 successfully" });
-  } catch (error) {
-    console.error("Error deleting file from S3:", error);
-    res
-      .status(500)
-      .json({ message: "Error deleting file from S3", error: error.message });
-  }
-};
-
 module.exports = {
   uploadFile,
   uploadQuote,
   getQuotes,
   deleteQuoteById,
-  deleteFromS3Controller,
 };
