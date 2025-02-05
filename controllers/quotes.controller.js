@@ -50,25 +50,42 @@ const getQuotes = async (req, res) => {
       status,
       search,
     } = req.query;
-    let query = {};
-    if (type) query.type = type;
-    if (subtype) query.subtype = subtype;
-    if (language) query.language = language;
-    if (status) query.status = status;
 
-    const totalCount = await QuotesData.countDocuments(query);
+    const filters = [];
+    if (type) filters.push({ type });
+    if (subtype) filters.push({ subtype });
+    if (language) filters.push({ language });
+    if (status) filters.push({ status });
 
-    const filterQuotes = await QuotesData.find(query)
-      .sort({ createdAt: -1 }) // Sort by latest date
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit));
+    // Match filter criteria
+    const matchStage = filters.length > 0 ? { $match: { $and: filters } } : {};
+
+    // Aggregation pipeline
+    const pipeline = [
+      matchStage,
+      { $sort: { createdAt: -1 } }, // Sort by latest date
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [
+            { $skip: (page - 1) * parseInt(limit) },
+            { $limit: parseInt(limit) },
+          ],
+        },
+      },
+    ];
+
+    const result = await QuotesData.aggregate(pipeline);
+
+    const total =
+      result[0].metadata.length > 0 ? result[0].metadata[0].total : 0;
 
     res.status(200).json({
       success: true,
-      total: totalCount,
+      total,
       page: parseInt(page),
-      totalPages: Math.ceil(totalCount / limit),
-      data: filterQuotes,
+      totalPages: Math.ceil(total / limit),
+      data: result[0].data,
     });
   } catch (error) {
     console.error("Error fetching quote images:", error);

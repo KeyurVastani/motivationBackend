@@ -78,14 +78,20 @@ const deleteQuotesType = async (req, res) => {
     const { id } = req.params;
     const data = req.body;
     await QuotesModal.deleteOne({ _id: id });
-    const deletedFile = await deleteFromS3(data.s3ImageName);
-    if (deletedFile) {
-      res.status(200).json({ message: "Quote type deleted successfully" });
+    if (data.s3ImageName) {
+      const deletedFile = await deleteFromS3(data.s3ImageName);
+      if (deletedFile) {
+        res
+          .status(200)
+          .json({ message: "Quote type delete successfully with image" });
+      } else {
+        res.status(500).json({
+          message: "Error deleting quote image",
+          error: "File not found",
+        });
+      }
     } else {
-      res.status(500).json({
-        message: "Error deleting quote image",
-        error: "File not found",
-      });
+      res.status(200).json({ message: "Quote type deleted successfully" });
     }
   } catch (error) {
     console.error("quotesTypee upload error:", error);
