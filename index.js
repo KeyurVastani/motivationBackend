@@ -5,6 +5,7 @@ const multer = require("multer");
 
 const connectDB = require("./config/db.config");
 const uploadRoutes = require("./routes/quotes.routes");
+const quotesTypeRoutes = require("./routes/quotesType.routes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get("/", ({ res, req }) => {
 });
 
 app.use("/v1/api/motivations", uploadRoutes);
+app.use("/v1/api/quotesType", quotesTypeRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error("Error:", err);
